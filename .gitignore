@@ -1,0 +1,11 @@
+node_modules/
+.npm-cache/
+www/
+dist/
+android/.gradle/
+android/.kotlin/
+android/.idea/
+android/local.properties
+android/**/build/
+*.jks
+*.keystore

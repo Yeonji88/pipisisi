@@ -1,0 +1,7 @@
+{ "indexes": [], "fieldOverrides": [
+  { "collectionGroup": "recipes", "fieldPath": "photo", "indexes": [] },
+  { "collectionGroup": "recipes", "fieldPath": "ingredients", "indexes": [] },
+  { "collectionGroup": "recipes", "fieldPath": "steps", "indexes": [] },
+  { "collectionGroup": "recipes", "fieldPath": "memo", "indexes": [] },
+  { "collectionGroup": "chatMessages", "fieldPath": "expiresAt", "ttl": true, "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION" }, { "order": "DESCENDING", "queryScope": "COLLECTION" }] }
+] }

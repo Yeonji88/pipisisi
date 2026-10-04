@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>냠냠 레시피북</title>
+<style>
+:root{--bg:#fff8ef;--card:#fff;--ink:#51483f;--muted:#94877b;--peach:#ffb58f;--pink:#ffd4dc;--mint:#cfe8d6;--yellow:#ffe7a8;--line:#f0e4d8;--shadow:0 10px 28px #b98d6b1c}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#fff5e9,#fffaf4 45%,#fdf8f2);color:var(--ink);font-family:ui-rounded,"Arial Rounded MT Bold","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+button,input,textarea,select{font:inherit}.app{max-width:980px;margin:auto;padding:28px 18px 90px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand h1{margin:0;font-size:clamp(27px,5vw,42px)}.brand p{margin:6px 0;color:var(--muted)}
+.mascot{font-size:48px;background:#fff;border-radius:24px;padding:10px 14px;box-shadow:var(--shadow);transform:rotate(4deg)}
+.toolbar{display:grid;grid-template-columns:1fr auto;gap:10px;margin:24px 0 12px}.search{border:2px solid var(--line);background:#fff;border-radius:18px;padding:14px 16px;outline:none}.search:focus{border-color:var(--peach)}
+.primary{border:0;background:var(--peach);color:#fff;border-radius:18px;padding:0 18px;font-weight:800;cursor:pointer;box-shadow:0 7px 16px #ffb58f55}
+.chips{display:flex;gap:8px;overflow:auto;padding:3px 0 15px}.chip{white-space:nowrap;border:0;background:#fff;padding:9px 13px;border-radius:999px;color:var(--muted);cursor:pointer;box-shadow:0 3px 10px #0000000b}.chip.on{background:var(--yellow);color:#6e5b35;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}.card{background:var(--card);border:1px solid #f5e8dd;border-radius:25px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:.18s}.card:hover{transform:translateY(-3px)}
+.cover{height:145px;min-height:0;overflow:hidden;display:grid;place-items:center;font-size:68px;background:linear-gradient(135deg,#ffe3c9,#fff0d7)}.card:nth-child(3n+2) .cover{background:linear-gradient(135deg,#ffdce4,#fff0f3)}.card:nth-child(3n) .cover{background:linear-gradient(135deg,#dff1df,#eff8e9)}
+.cardbody{padding:15px}.row{display:flex;justify-content:space-between;align-items:start;gap:8px}.card h3{margin:0 0 7px;font-size:20px}.meta{color:var(--muted);font-size:13px}.star{border:0;background:transparent;font-size:22px;cursor:pointer}.note{margin:12px 0 0;background:#fff8e6;border-radius:13px;padding:9px;font-size:13px;color:#78684f}
+.empty{text-align:center;color:var(--muted);padding:50px 10px;grid-column:1/-1}
+dialog{border:0;border-radius:28px;padding:0;max-width:680px;width:calc(100% - 24px);box-shadow:0 30px 80px #5b43373d}dialog::backdrop{background:#59493f66;backdrop-filter:blur(4px)}
+.modal{padding:22px;background:#fffdfa;max-height:88vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center}.modalhead h2{margin:0}.x{border:0;background:#f6ede5;border-radius:50%;width:38px;height:38px;cursor:pointer}
+label{display:block;font-size:13px;font-weight:800;margin:15px 0 6px}.field{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff;outline:none}.field:focus{border-color:var(--peach)}textarea.field{min-height:92px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;gap:9px;margin-top:18px}.actions button{flex:1;border:0;border-radius:15px;padding:12px;font-weight:800;cursor:pointer}.save{background:linear-gradient(135deg,#ff9f7c,#ff7f91)!important;color:#fff!important;box-shadow:0 8px 18px #ff8b8855;border:0!important;opacity:1!important}
+.save:hover{transform:translateY(-1px);filter:brightness(1.03)}
+.save:active{transform:translateY(1px)}
+.delete{background:#ffe4e4;color:#a55}.cancel{background:#f2eee9;color:#776b60}
+.detailHero{text-align:center;font-size:74px;background:#fff1df;border-radius:22px;padding:18px}.detailTitle{text-align:center}.detailTitle h2{margin:12px 0 4px}.serv{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px}.serv button{border:0;background:#f4ece3;border-radius:50%;width:30px;height:30px;cursor:pointer}
+.section{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:12px 0}.section h3{margin:0 0 10px}.section pre{white-space:pre-wrap;margin:0;font-family:inherit;line-height:1.65}
+.detailBtns{display:flex;gap:8px}.detailBtns button{flex:1;border:0;border-radius:14px;padding:11px;cursor:pointer;font-weight:800}
+@media(max-width:520px){.toolbar{grid-template-columns:1fr}.primary{padding:13px}.two{grid-template-columns:1fr}.app{padding-top:20px}.mascot{font-size:38px}}
+#detail{overflow:hidden}#detail .modal{scrollbar-width:none}#detail .modal::-webkit-scrollbar{display:none}
+.cover img{display:block;width:100%;height:145px;min-width:0;min-height:0;object-fit:contain;padding:8px}.detailHero img{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:16px}
+.photoPreview{display:block;max-width:100%;max-height:180px;border-radius:16px;margin-top:10px}.photoPreview[hidden]{display:none}
+.accountbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}button:disabled{opacity:.5;cursor:wait}.app{padding-top:max(28px,env(safe-area-inset-top))}
+.recipeDateLabel{display:block;font-size:11px;line-height:1.5;color:var(--muted);margin-top:5px;font-weight:400}
+dialog{overflow:hidden}.modal{padding:0;display:flex;flex-direction:column;max-height:88vh;overflow:hidden}.modalhead{position:static;flex:0 0 auto;background:#fffdfa;padding:12px 22px;margin:0;min-height:62px}.modalhead .x{flex-shrink:0}.modalbody{padding:0 22px 22px;min-height:0;overflow:auto;overscroll-behavior:contain}#detail .modalbody{scrollbar-width:none}#detail .modalbody::-webkit-scrollbar{display:none}
+#detail .modal{position:relative}#detail .modalhead{position:absolute;top:12px;right:12px;z-index:20;min-height:0;padding:0;background:transparent}#detail .modalhead>span{display:none}#detail .modalhead .x{box-shadow:0 2px 8px #51483f18}#detail .modalbody{padding-top:16px}#detail .detailHero{margin-right:0}
+#friendDetail .modal{position:relative}#friendDetail .modalhead{position:absolute;top:12px;right:12px;z-index:20;min-height:0;padding:0;background:transparent}#friendDetail .modalbody{padding-top:16px;scrollbar-width:none}#friendDetail .modalbody::-webkit-scrollbar{display:none}[hidden]{display:none!important}
+.chatMessages{height:min(42vh,360px);overflow:auto;padding:10px;background:#fff8ef;border-radius:16px}.chatRow{display:flex;flex-direction:column;align-items:flex-start;margin:10px 0;gap:3px}.chatRow.mine{align-items:flex-end}.chatBubble{max-width:85%;background:#fff;padding:10px 14px;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}.mine .chatBubble{background:var(--pink)}.chatForm{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}
+.unreadBadge{display:inline-block;min-width:20px;padding:2px 6px;border-radius:999px;background:#ef738b;color:#fff;font-size:12px;font-weight:800}
+.friendSelectWrap{position:relative;border-radius:20px;background:linear-gradient(120deg,#fff4e5,#fff0f4);box-shadow:0 4px 12px #e9b6aa20}.friendSelectWrap #chatRoomSelect{appearance:none;-webkit-appearance:none;background:transparent;border:1.5px solid #f4d8cc;border-radius:20px;padding:15px 44px 15px 52px;color:#70554f;font-weight:700;cursor:pointer;min-height:54px}.friendSelectWrap #chatRoomSelect:focus{border-color:#f3a5ad;box-shadow:0 0 0 3px #ffdce466}.friendSelectIcon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:23px;pointer-events:none}.friendSelectArrow{position:absolute;right:15px;top:50%;transform:translateY(-55%);display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#ffe0e6;color:#b87980;font-size:20px;pointer-events:none}.friendSelectWrap option{background:#fff9f3;color:#70554f}
+.friendSelectButton{position:relative;width:100%;text-align:left;min-height:54px;border:1.5px solid #f4d8cc;border-radius:20px;background:transparent;padding:15px 44px 15px 52px;color:#70554f;font-weight:700;cursor:pointer}.friendSelectButton:focus-visible{outline:3px solid #ffd0dd;outline-offset:2px}.friendSelectMenu{position:fixed;inset:auto;box-sizing:border-box;margin:0;padding:6px;background:#fff8f3;border:1.5px solid #f4d8cc;border-radius:18px;box-shadow:0 8px 18px #d7a99b22;max-height:220px;overflow:auto}.friendSelectOption{display:flex;align-items:center;gap:10px;width:100%;border:0;border-radius:12px;background:transparent;padding:12px;color:#70554f;text-align:left;cursor:pointer}.friendSelectOption:hover,.friendSelectOption:focus-visible{background:#ffebec;outline:none}.friendSelectOption[aria-selected="true"]{background:#ffe0e7;font-weight:800}.friendSelectCheck{margin-left:auto;color:#c16c85}
+#chatDialog.chatMenuFallback,#chatDialog.chatMenuFallback .modal,#chatDialog.chatMenuFallback .modalbody{overflow:visible}#chatDialog{top:var(--chat-top,50dvh);bottom:auto;margin-block:0;transform:translateY(-50%);max-height:var(--chat-height,88dvh)}
+#chatDialog .modal{max-height:var(--chat-height,88dvh)}
+#chatDialog:has(#chatConversation:not([hidden])) .modal{height:min(760px,var(--chat-height,88dvh))}
+#chatDialog .modalbody{display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0;padding-bottom:16px}
+#chatDialog .friendSelectWrap{flex-shrink:0}
+#chatConversation{display:flex;flex-direction:column;flex:1;min-height:0}
+#chatCurrentFriend,#chatStatus{flex-shrink:0}
+#chatMessages{height:auto;min-height:0;flex:1;overscroll-behavior:contain}
+#chatForm{flex-shrink:0;margin-top:10px}
+#chatInput{min-height:60px;height:64px;max-height:80px;resize:none}
+</style>
+</head>
+<body>
+<section id="authLoading" class="app" role="status" style="max-width:480px;padding-top:60px;text-align:center"><h1>냠냠 레시피북 🍳</h1><p class="meta">맛있는 기록을 불러오는 중…</p></section><section id="loginPage" hidden class="app" style="max-width:480px;padding-top:60px"><div class="section"><h1 style="margin:0">냠냠 레시피북 🍳</h1><p class="meta">로그인하고 맛있는 기록을 이어가세요.</p><p id="loginStatus" class="meta">로그인 상태를 확인하는 중…</p><div id="loginFields">
+<label for="authEmail">이메일</label><input id="authEmail" class="field" type="email" autocomplete="email">
+<button id="saveEmailButton" class="chip" onclick="recipeCloud.saveEmail()">이메일 저장</button>
+<label for="authPassword">비밀번호</label><input id="authPassword" class="field" type="password" autocomplete="current-password">
+<div class="actions"><button id="loginButton" class="save" onclick="recipeCloud.authenticate()">로그인</button><button id="signupButton" class="cancel" onclick="recipeCloud.authenticate(true)">회원가입</button></div>
+<button class="chip" onclick="recipeCloud.resetPassword()">비밀번호 재설정</button>
+<p class="meta">같은 계정으로 로그인하면 레시피와 사진이 동기화됩니다.</p>
+</div></div></section>
+<div id="recipeApp" class="app" hidden>
+<header><div class="brand"><h1>냠냠 레시피북 🍳</h1><p>내가 만든 맛있는 기록을 차곡차곡 ♡</p></div><div class="mascot">🐣</div></header>
+<nav class="accountbar" style="margin-top:18px" aria-label="레시피 페이지"><button id="myRecipesTab" class="chip on" onclick="recipeFriends.page(false)">🍳 내 레시피</button><button id="friendRecipesTab" class="chip" onclick="recipeFriends.page(true)">👫 친구 레시피</button></nav>
+<div id="messageNotice" class="section" hidden><span id="messageNoticeText"></span> <button class="chip" onclick="recipeChat.openUnread()">대화 보기</button><button class="chip" onclick="document.getElementById('messageNotice').hidden=true">닫기</button></div>
+<div id="myRecipesPage">
+<div class="toolbar"><input id="search" class="search" placeholder="🔎 요리 이름이나 재료를 검색해봐요"><button id="addRecipeButton" class="primary" onclick="openEditor()">＋ 레시피 추가</button></div>
+<div class="accountbar"><button class="chip" onclick="window.recipeCloud?.open()">☁️ 계정 · 백업</button><button class="chip" onclick="recipeChat.open()">💬 메시지 <span id="messageUnreadBadge" class="unreadBadge" hidden>0</span></button><span class="meta" id="syncStatus">기기에 저장 중</span></div>
+<div class="chips" id="chips"></div><main class="grid" id="grid"></main>
+</div>
+<section id="friendRecipesPage" hidden>
+<div class="section"><h2 style="margin-top:0">친구의 맛있는 기록 🥘</h2><p class="meta">친구가 공유한 레시피를 볼 수 있어요. 개인 레시피는 자동으로 공개되지 않습니다.</p>
+<p id="friendStatus" class="meta">로그인 후 친구와 레시피를 공유하세요.</p>
+<button class="chip" onclick="recipeFriends.openManager()">＋ 친구 추가 · 내 코드</button><button class="chip" onclick="recipeFriends.openChat()">💬 선택한 친구와 대화</button>
+<div class="chips" id="friendList" style="margin-top:12px"></div>
+<input id="friendSearch" class="field" placeholder="친구 레시피 이름이나 재료 검색" aria-label="친구 레시피 검색">
+</div><main id="friendGrid" class="grid"><div class="empty">친구 코드를 추가하면 공유 레시피가 여기에 표시돼요.</div></main>
+</section>
+</div>
+
+<dialog id="editor"><div class="modal">
+<div class="modalhead"><h2 id="editorTitle">새 레시피 ✨</h2><button type="button" class="x" onclick="editor.close()">✕</button></div><div class="modalbody">
+<input id="rid" type="hidden">
+<label for="recipeDate">등록 날짜</label><input id="recipeDate" class="field" type="date">
+<div><label>요리 이름</label><input id="name" class="field" placeholder="예: 마제소바"></div>
+<label for="emoji">대표 이미지 <span style="color:#aa998b;font-weight:400">메인 화면에 크게 보여요 ♡</span></label>
+<select id="emoji" class="field"></select>
+<label for="photoInput">음식 사진 올리기</label>
+<input id="photoInput" class="field" type="file" accept="image/jpeg,image/png,image/webp">
+<p class="meta">사진을 올리면 대표 이미지로 표시돼요. JPG·PNG·WebP를 선택해주세요.</p>
+<img id="photoPreview" class="photoPreview" alt="음식 사진 미리보기" hidden>
+<button id="photoRemove" type="button" class="cancel field" onclick="removePhoto()" hidden>사진 제거</button>
+<div class="two"><div><label>카테고리</label><select id="category" class="field"><option>한식</option><option>면요리</option><option>반찬</option><option>국·찌개</option><option>고기</option><option>간식</option><option>기타</option></select></div><div><label>기준 인분</label><input id="servings" class="field" type="number" min="1" value="2"></div></div>
+<label>재료 <span style="color:#aa998b;font-weight:400">(한 줄에 하나, 수량은 숫자로 적으면 인분 계산돼요)</span></label><textarea id="ingredients" class="field" placeholder="돼지고기 500 g&#10;대파 1 대&#10;간장 2 큰술"></textarea>
+<label>만드는 순서</label><textarea id="steps" class="field" placeholder="1. 재료를 준비한다.&#10;2. 팬에 볶는다."></textarea>
+<label>나만의 메모</label><textarea id="memo" class="field" placeholder="다음엔 간장을 조금 줄이기!"></textarea>
+<div class="actions"><button type="button" class="cancel" onclick="editor.close()">취소</button><button id="deleteBtn" type="button" class="delete" onclick="deleteRecipe()">삭제</button><button type="button" class="save" id="saveBtn" onclick="saveRecipe()">저장 ♡</button></div>
+</div></div></dialog>
+
+<dialog id="detail"><div class="modal">
+<div class="modalhead"><span></span><button class="x" onclick="detail.close()">✕</button></div><div class="modalbody"><div id="detailContent"></div>
+</div></div></dialog>
+
+<dialog id="chatDialog"><div class="modal"><div class="modalhead"><h2>친구 메시지 💬</h2><button class="x" onclick="document.getElementById('chatDialog').close()" aria-label="닫기">✕</button></div><div class="modalbody"><div class="friendSelectWrap"><select id="chatRoomSelect" hidden aria-hidden="true" tabindex="-1"></select><button id="friendSelectButton" class="friendSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="friendSelectMenu"><span class="friendSelectIcon" aria-hidden="true">👩‍🍳</span><span id="friendSelectLabel">대화할 친구 선택</span><span class="friendSelectArrow" aria-hidden="true">⌄</span></button><div id="friendSelectMenu" class="friendSelectMenu" role="listbox" aria-label="대화할 친구" hidden></div></div><div id="chatConversation" hidden><p id="chatCurrentFriend" style="font-size:14px;font-weight:800;margin:10px 0 4px">대화할 친구를 선택해주세요.</p><p id="chatStatus" class="meta">메시지는 전송 후 24시간 동안 보관됩니다.</p><div id="chatMessages" class="chatMessages" role="log" aria-live="polite"></div><form id="chatForm" class="chatForm"><textarea id="chatInput" class="field" rows="2" maxlength="2000" placeholder="메시지 입력" aria-label="메시지 입력"></textarea><button id="chatSendButton" type="submit" class="primary">전송</button></form></div></div></div></dialog>
+<dialog id="friendManager"><div class="modal"><div class="modalhead"><h2>친구 추가 · 내 코드</h2><button class="x" onclick="document.getElementById('friendManager').close()" aria-label="닫기">✕</button></div><div class="modalbody"><label for="myFriendCode">내 친구 코드</label><div class="two"><input id="myFriendCode" class="field" readonly placeholder="코드 만들기를 눌러주세요"><button class="chip" onclick="recipeFriends.createCode()">내 코드 만들기 · 복사</button></div>
+<p class="meta">코드를 받은 로그인한 사용자가 공유 레시피를 볼 수 있어요. 신뢰하는 친구에게만 전달하세요.</p>
+<label for="friendCodeInput">친구 코드</label><div class="two"><input id="friendCodeInput" class="field" placeholder="친구가 알려준 코드 입력" maxlength="32"><button class="chip" onclick="recipeFriends.addFriend()">친구 추가</button></div>
+<div id="friendManageActions"></div></div></div></dialog>
+<dialog id="friendDetail"><div class="modal"><div class="modalhead"><span></span><button class="x" onclick="document.getElementById('friendDetail').close()" aria-label="닫기">✕</button></div><div class="modalbody"><div id="friendDetailContent"></div></div></div></dialog>
+<dialog id="accountDialog"><div class="modal">
+<div class="modalhead"><h2>계정 · 백업 ☁️</h2><button class="x" onclick="document.getElementById('accountDialog').close()" aria-label="닫기">✕</button></div><div class="modalbody">
+<p id="accountEmail" class="meta">이 기기에 저장 중</p>
+<label for="displayName">내 이름</label><div class="two"><input id="displayName" class="field" maxlength="30" placeholder="친구에게 표시할 이름"><button id="saveNameButton" class="chip" onclick="recipeFriends.saveName()">이름 저장</button></div>
+<p class="meta">로그인 후 저장하면 친구에게 이 이름으로 표시돼요.</p>
+<button id="autoLoginButton" class="chip" aria-pressed="true" onclick="recipeCloud.toggleAutoLogin()">자동 로그인: 켜짐</button>
+<p class="meta">켜두면 다음에 앱을 열 때 로그인 상태를 유지해요.</p>
+
+<div class="section"><button id="biometricButton" class="chip" hidden onclick="recipeBiometric.toggle()">지문 잠금 켜기</button><p class="meta">휴대폰에 등록된 생체인증으로 앱을 열어요.</p><button id="messageAlertButton" class="chip" hidden onclick="messageAlerts.toggle()">메시지 소리 알림 켜기</button><p class="meta">앱을 켜둔 동안 새 메시지 알림을 받을 수 있어요.</p></div><button id="logoutButton" class="chip" onclick="recipeCloud.logout()" hidden>로그아웃</button>
+<button id="uploadLocalButton" class="field cancel" onclick="recipeCloud.backupFirebase()" hidden>기기 데이터 백업</button>
+<div class="section"><h3>📦 레시피 백업</h3><p class="meta">기존 브라우저에서 백업한 뒤 앱에서 가져오세요. 사진도 포함됩니다.</p>
+<button class="field cancel" onclick="recipeCloud.exportBackup()">백업 파일 내보내기</button>
+<label for="backupInput">백업 파일 가져오기 · 기존 레시피 유지</label><input id="backupInput" class="field" type="file" accept=".json,application/json">
+</div></div></div></dialog>
+<script>
+const $=id=>document.getElementById(id);
+const gridEl=$("grid"),chipsEl=$("chips"),searchEl=$("search"),editorEl=$("editor"),detailEl=$("detail");
+const editorTitleEl=$("editorTitle"),deleteBtnEl=$("deleteBtn"),ridEl=$("rid"),nameEl=$("name"),emojiEl=$("emoji"),categoryEl=$("category"),servingsEl=$("servings"),ingredientsEl=$("ingredients"),stepsEl=$("steps"),memoEl=$("memo"),detailContentEl=$("detailContent");
+const seed=[
+{id:"a",name:"마제소바",emoji:"🍜",category:"면요리",servings:2,ingredients:"다진 돼지고기 500 g\n면 2 인분\n대파 1 대\n간장 2 큰술\n굴소스 1 큰술",steps:"1. 대파를 잘게 썬다.\n2. 고기를 볶고 양념을 넣는다.\n3. 삶은 면 위에 고기와 고명을 올린다.\n4. 잘 비벼서 먹는다.",memo:"고기 듬뿍! 간은 먹어보고 조절하기.",favorite:true},
+{id:"b",name:"콩나물무침",emoji:"🌱",category:"반찬",servings:2,ingredients:"콩나물 200 g\n고춧가루 1 큰술\n진간장 1 큰술\n참기름 1 큰술\n미원 0.2 큰술",steps:"1. 콩나물을 삶아 물기를 뺀다.\n2. 양념을 모두 넣는다.\n3. 살살 무쳐 완성한다.",memo:"양념이 부족하면 진간장을 조금씩 추가.",favorite:false},
+{id:"c",name:"황태국",emoji:"🥣",category:"국·찌개",servings:2,ingredients:"황태채 50 g\n물 800 ml\n참기름 1 큰술\n국간장 1 큰술\n다진마늘 0.5 큰술\n달걀 1 개",steps:"1. 황태채를 가볍게 불린다.\n2. 참기름에 황태를 볶는다.\n3. 물을 붓고 끓인 뒤 간한다.\n4. 달걀을 풀어 넣는다.",memo:"아침에 먹기 좋게 시원하게.",favorite:true}
+];
+let storageBlocked=false;
+let storageOK=true,storageKey="cuteRecipes",editorRevision=0;
+function loadRecipes(){
+  try{
+    const raw=localStorage.getItem(storageKey);
+    const data=raw ? JSON.parse(raw) : seed.map(x=>({...x}));
+    if(!Array.isArray(data))throw Error('Invalid recipe data');return data;
+  }catch(e){
+    storageOK=false;storageBlocked=true;
+    return seed.map(x=>({...x}));
+  }
+}
+let recipes=loadRecipes();
+let active="전체", viewing=null;
+const cats=["전체","⭐ 즐겨찾기","한식","면요리","반찬","국·찌개","고기","간식","기타"];
+function persist(){
+  if(storageBlocked)return false;
+  try{
+    localStorage.setItem(storageKey,JSON.stringify(recipes));
+    storageOK=true;
+    return true;
+  }catch(e){
+    storageOK=false;
+    return false;
+  }
+}
+function toast(msg){
+  let t=document.getElementById("toast");
+  if(!t){
+    t=document.createElement("div"); t.id="toast";
+    t.setAttribute("role","alert");
+    t.setAttribute("aria-live","assertive");
+  }
+  const opened=[editorEl,detailEl,$("accountDialog"),$("friendDetail"),$("friendManager"),$("chatDialog")].filter(d=>d?.open).at(-1);
+  const host=opened?.querySelector(".modal");
+  const base="background:#51483f;color:white;padding:12px 18px;z-index:9999;box-shadow:0 8px 25px #0003;font-weight:800;white-space:normal;overflow-wrap:anywhere;line-height:1.5;";
+  if(host){
+    host.prepend(t);
+    t.style.cssText=base+"position:relative;flex:0 0 auto;border-radius:14px;margin:12px 22px 0;";
+  }else{
+    document.body.appendChild(t);
+    t.style.cssText=base+"position:fixed;left:50%;bottom:24px;transform:translateX(-50%);border-radius:18px;width:max-content;max-width:calc(100vw - 32px);";
+  }
+  t.textContent=msg; t.style.display="block";
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.style.display="none",6000);
+}
+function renderChips(){chipsEl.innerHTML=cats.map(c=>`<button class="chip ${active===c?'on':''}" onclick="active='${c}';renderChips();render()">${c}</button>`).join("")}
+function render(){
+ let q=searchEl.value.trim().toLowerCase();
+ let arr=recipes.filter(r=>(active==="전체"||active==="⭐ 즐겨찾기"&&r.favorite||r.category===active)&&(!q||(r.name+r.ingredients+r.memo).toLowerCase().includes(q)));
+ arr.sort((a,b)=>(Number(b.updatedAt)||0)-(Number(a.updatedAt)||0));
+ gridEl.innerHTML=arr.length?arr.map(r=>`<article class="card" onclick="showDetail('${r.id}')"><div class="cover">${recipeImage(r)}</div><div class="cardbody"><div class="row"><div><h3>${esc(r.name)}</h3><div class="meta">${esc(r.category)} · ${r.servings}인분</div>${r.recipeDate?`<small class="recipeDateLabel">등록일 · ${esc(r.recipeDate)}</small>`:""}</div><button class="star" onclick="event.stopPropagation();fav('${r.id}')">${r.favorite?"⭐":"☆"}</button></div>${r.memo?`<div class="note">📝 ${esc(r.memo)}</div>`:""}</div></article>`).join(""):`<div class="empty">🐰 아직 여기에 레시피가 없어요.<br>맛있는 기록을 추가해볼까요?</div>`;
+}
+function esc(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+async function fav(id){
+  const r=recipes.find(x=>x.id===id);if(!r)return;
+  const next={...r,favorite:!r.favorite},scope=storageKey;
+  if(window.recipeCloud){try{if(await recipeCloud.write(next))return;}catch(e){recipeCloud.report(e);return;}}
+  if(scope!==storageKey)return;
+  const previous=recipes;recipes=recipes.map(x=>x.id===id?next:x);
+  if(!persist()){recipes=previous;toast("저장하지 못했어요. 기존 데이터는 유지됩니다.");return;}render();
+}
+const foodImages=[
+  ["🍽️","기본 접시"],["🍜","국수"],["🍝","파스타"],["🍲","국·탕"],
+  ["🥘","전골"],["🍛","카레"],["🍚","밥"],["🍙","주먹밥"],
+  ["🍱","도시락"],["🥗","샐러드"],["🥩","고기"],["🍗","닭고기"],
+  ["🍖","갈비"],["🥟","만두"],["🍤","새우튀김"],["🍳","달걀 요리"],
+  ["🥪","샌드위치"],["🍕","피자"],["🌮","타코"],["🥣","수프"],
+  ["🌱","나물"],["🍰","케이크"],["🍪","쿠키"],["🍞","빵"],
+  ["🍣","초밥"],["🍥","어묵"],["🍢","꼬치"],["🍠","고구마"],
+  ["🥔","감자"],["🥕","당근"],["🌽","옥수수"],["🍄","버섯"],
+  ["🥦","브로콜리"],["🥬","채소"],["🥒","오이"],["🍆","가지"],
+  ["🍅","토마토"],["🫑","파프리카"],["🧅","양파"],["🧄","마늘"],
+  ["🐟","생선"],["🦐","새우"],["🦀","게"],["🦑","오징어"],["🦪","굴"],
+  ["🥚","달걀"],["🧀","치즈"],["🥓","베이컨"],["🌭","핫도그"],["🍔","햄버거"],
+  ["🥐","크루아상"],["🥯","베이글"],["🥞","팬케이크"],["🧇","와플"],
+  ["🍩","도넛"],["🧁","컵케이크"],["🍮","푸딩"],["🍨","아이스크림"],
+  ["🍓","딸기"],["🍌","바나나"],["🍎","사과"],["🍋","레몬"],["🥑","아보카도"],
+  ["☕","커피"],["🍵","차"],["🥛","우유"],["🧃","주스"]
+];
+function renderImagePicker(selected="🍽️"){
+  emojiEl.replaceChildren();
+  const choices=foodImages.some(([emoji])=>emoji===selected)
+    ? foodImages : [[selected,"기존 이미지"],...foodImages];
+  choices.forEach(([emoji,label])=>{
+    const option=document.createElement("option");
+    option.value=emoji;
+    option.textContent=`${emoji} ${label}`;
+    emojiEl.appendChild(option);
+  });
+  emojiEl.value=selected;
+}
+let editorPhoto="",photoVersion=0;
+function updatePhotoPreview(){
+  $("photoPreview").hidden=!editorPhoto;$("photoRemove").hidden=!editorPhoto;
+  if(editorPhoto)$("photoPreview").src=editorPhoto;else $("photoPreview").removeAttribute("src");
+}
+function removePhoto(){photoVersion++;editorPhoto="";$("photoInput").value="";$("saveBtn").disabled=false;updatePhotoPreview();}
+function recipeImage(r){return /^data:image\/(jpeg|png|webp);base64,/.test(r.photo||"") ? `<img src="${esc(r.photo)}" alt="${esc(r.name)} 사진">` : esc(r.emoji||"🍽️");}
+$("photoInput").addEventListener("change",async event=>{
+  const file=event.target.files[0];if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>20*1024*1024){toast("20MB 이하 JPG·PNG·WebP 사진을 선택해주세요.");event.target.value="";return;}
+  const version=++photoVersion;$("saveBtn").disabled=true;
+  const url=URL.createObjectURL(file);
+  try{
+    const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+    const ratio=Math.min(1,800/Math.max(img.naturalWidth,img.naturalHeight));
+    const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));
+    const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    if(version!==photoVersion)return;
+    editorPhoto=canvas.toDataURL("image/jpeg",.78);updatePhotoPreview();
+  }catch(e){if(version===photoVersion){toast("사진을 읽을 수 없어요. 다른 사진을 선택해주세요.");event.target.value="";}}
+  finally{URL.revokeObjectURL(url);if(version===photoVersion)$("saveBtn").disabled=false;}
+});
+editorEl.addEventListener("close",()=>{photoVersion++;$("saveBtn").disabled=false;});
+function resetPopupScroll(dialog){dialog.scrollTop=0;const modal=dialog.querySelector(".modalbody");if(modal)modal.scrollTop=0;}
+function openEditor(id){
+ if(window.recipeCloud&&!recipeCloud.editable()){toast('동기화 연결을 기다려주세요. 오프라인에서는 레시피를 읽을 수 있어요.');return;}
+ editorRevision=recipes.find(x=>x.id===id)?.revision||0;
+ $("recipeDate").value=id?(recipes.find(x=>x.id===id)?.recipeDate||""):new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ photoVersion++;$("saveBtn").disabled=false;$("photoInput").value="";editorPhoto=recipes.find(x=>x.id===id)?.photo||"";updatePhotoPreview();
+ let r=id&&recipes.find(x=>x.id===id); editorTitleEl.textContent=r?"레시피 수정 ✏️":"새 레시피 ✨";
+ ridEl.value=r?.id||""; nameEl.value=r?.name||""; emojiEl.value=r?.emoji||""; categoryEl.value=r?.category||"한식"; servingsEl.value=r?.servings||2; ingredientsEl.value=r?.ingredients||""; stepsEl.value=r?.steps||""; memoEl.value=r?.memo||""; renderImagePicker(r?.emoji||"🍽️"); deleteBtnEl.style.display=r?"block":"none"; if(detailEl.open) detailEl.close(); if(editorEl.showModal) editorEl.showModal(); else editorEl.setAttribute("open",""); resetPopupScroll(editorEl);
+}
+async function saveRecipe(){
+  if($("saveBtn").disabled)return;
+  const recipeName=nameEl.value.trim();
+  if(!recipeName){toast("요리 이름을 입력해줘요 🥺");nameEl.focus();return;}
+  const id=ridEl.value||crypto.randomUUID();
+  const old=recipes.find(x=>x.id===id);
+  const previousRecipes=recipes,scope=storageKey;
+  const obj={...old,id,recipeDate:$("recipeDate").value,updatedAt:Date.now(),revision:editorRevision,photo:editorPhoto,name:recipeName,emoji:emojiEl.value.trim()||"🍽️",category:categoryEl.value,
+    servings:Math.max(1,+servingsEl.value||1),ingredients:ingredientsEl.value.trim(),
+    steps:stepsEl.value.trim(),memo:memoEl.value.trim(),favorite:old?.favorite||false};
+  if(window.recipeCloud){
+    try{
+      const remote=await recipeCloud.write(obj);
+      if(remote){editorEl.close();render();toast("레시피 저장 및 동기화 완료! 💕");return;}
+    }catch(e){recipeCloud.report(e);return;}
+  }
+  if(scope!==storageKey)return;
+  if(old) recipes=recipes.map(x=>x.id===id?obj:x);
+  else recipes=[obj,...recipes];
+  const saved=persist();
+  if(!saved){recipes=previousRecipes;toast("저장 공간이 부족하거나 저장이 제한되어 있어요. 사진을 제거하거나 줄인 뒤 다시 저장해주세요.");return;}
+  if(editorEl.open) editorEl.close();
+  active="전체";
+  renderChips();
+  render();
+  toast(saved ? "레시피 저장 완료! 💕" : "레시피가 목록에 추가됐어요. 이 미리보기에서는 영구 저장이 제한될 수 있어요.");
+}
+async function deleteRecipe(){
+  const r=recipes.find(x=>x.id===ridEl.value),scope=storageKey;if(!r)return;
+  if(!confirm("이 레시피를 삭제할까요? 🥺"))return;
+  if(window.recipeCloud){try{if(await recipeCloud.write({...r,revision:editorRevision},true)){editorEl.close();return;}}catch(e){recipeCloud.report(e);return;}}
+  if(scope!==storageKey)return;
+  const previous=recipes;recipes=recipes.filter(x=>x.id!==r.id);
+  if(!persist()){recipes=previous;toast("삭제하지 못했어요. 기존 데이터는 유지됩니다.");return;}editorEl.close();render();
+}
+function scaleIngredients(txt,ratio){return txt.split("\n").map(line=>line.replace(/(\d+(?:\.\d+)?)/g,n=>{let v=+n*ratio;return Number.isInteger(v)?v:String(Math.round(v*100)/100)})).join("\n")}
+function showDetail(id,serv){let r=recipes.find(x=>x.id===id);if(!r){if(detailEl.open)detailEl.close();return;}const resetPosition=!detailEl.open||viewing!==id;viewing=id;let s=serv||r.servings, ratio=s/r.servings;detailContentEl.innerHTML=`<div class="detailHero">${recipeImage(r)}</div><div class="detailTitle"><h2>${esc(r.name)}</h2><div class="meta">${esc(r.category)}</div>${r.recipeDate?`<small class="recipeDateLabel">등록일 · ${esc(r.recipeDate)}</small>`:""}<div class="serv"><button onclick="showDetail('${id}',${Math.max(1,s-1)})">−</button><b>${s}인분</b><button onclick="showDetail('${id}',${s+1})">＋</button></div></div><div class="section"><h3>🧺 재료</h3><pre>${esc(scaleIngredients(r.ingredients,ratio))}</pre></div><div class="section"><h3>👩‍🍳 만드는 순서</h3><pre>${esc(r.steps)}</pre></div>${r.memo?`<div class="section"><h3>💌 나만의 메모</h3><pre>${esc(r.memo)}</pre></div>`:""}<div class="detailBtns"><button onclick="fav('${id}').then(()=>showDetail('${id}',${s}))">${r.favorite?"⭐ 즐겨찾기":"☆ 즐겨찾기"}</button><button onclick="openEditor('${id}')">✏️ 수정하기</button><button onclick="window.recipeFriends?.share('${id}')">${window.recipeFriends?.isShared(id)?"공유 해제":"친구에게 공유"}</button></div>`;if(!detailEl.open)detailEl.showModal();if(resetPosition)resetPopupScroll(detailEl)}
+window.nyamApp={
+  getRecipes:()=>recipes.map(r=>({...r})),toast,escape:esc,image:recipeImage,scale:scaleIngredients,resetScroll:resetPopupScroll,
+  refreshDetail(){if(detailEl.open)showDetail(viewing);},
+  closeDialogs(){for(const id of ["editor","detail","accountDialog","friendDetail","friendManager","chatDialog"]){const dialog=$(id);if(dialog?.open)dialog.close();}},
+  switchAccount(uid){
+    storageKey=uid?`nyamRecipes:${uid}`:"cuteRecipes";storageBlocked=false;
+    try{const raw=localStorage.getItem(storageKey);recipes=raw?JSON.parse(raw):(uid?[]:seed.map(r=>({...r})));if(!Array.isArray(recipes))throw Error();}
+    catch(e){storageBlocked=true;recipes=[];toast("저장된 데이터 읽기에 실패했어요. 원본 데이터를 유지합니다.");}
+    active="전체";renderChips();render();
+  },
+  replace(next){recipes=next;if(!persist())toast("서버 데이터는 불러왔지만 이 기기의 저장 공간이 부족해요.");render();if(detailEl.open){if(recipes.some(r=>r.id===viewing))showDetail(viewing);else detailEl.close();}},
+  addImported(recipe){const previous=recipes;recipes=[{...recipe,updatedAt:Date.now()},...recipes];if(!persist()){recipes=previous;throw Error("기기 저장 공간이 부족합니다.");}render();}
+};
+searchEl.addEventListener("input",render);renderChips();render();
+</script>
+<script src="firebase-config.js"></script>
+<script defer src="cloud.bundle.js"></script>
+</body></html>

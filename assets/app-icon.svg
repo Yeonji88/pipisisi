@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <rect width="108" height="108" rx="24" fill="#FFE5D3"/>
+  <g id="egg">
+    <path d="M30 36C34 27 47 25 55 29C65 24 77 30 79 40C88 45 88 57 82 63C85 74 74 82 64 79C54 85 42 82 37 75C25 76 20 65 25 56C19 48 22 39 30 36Z" fill="#E8BFA9" opacity=".38" transform="translate(0 3)"/>
+    <path d="M30 36C34 27 47 25 55 29C65 24 77 30 79 40C88 45 88 57 82 63C85 74 74 82 64 79C54 85 42 82 37 75C25 76 20 65 25 56C19 48 22 39 30 36Z" fill="#FFFEF8" stroke="#F3DCC9" stroke-width="1.2"/>
+    <circle cx="54" cy="55" r="20" fill="#FFBE3F"/>
+    <path d="M39 56C39 66 47 73 56 73C66 73 73 65 73 56C68 65 51 72 39 56Z" fill="#F4A42F" opacity=".5"/>
+    <ellipse cx="47" cy="44" rx="6" ry="3.5" fill="#FFE79D" transform="rotate(-28 47 44)"/>
+    <ellipse cx="47" cy="55" rx="1.7" ry="2.2" fill="#6D4934"/>
+    <ellipse cx="61" cy="55" rx="1.7" ry="2.2" fill="#6D4934"/>
+    <ellipse cx="42" cy="60" rx="3" ry="1.7" fill="#FF987F" opacity=".8"/>
+    <ellipse cx="66" cy="60" rx="3" ry="1.7" fill="#FF987F" opacity=".8"/>
+    <path d="M50 61Q54 66 58 61" fill="none" stroke="#6D4934" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+</svg>
