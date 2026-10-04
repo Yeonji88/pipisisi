@@ -48,12 +48,12 @@ export function createFriends({app,session,report}){
         if(token!==epoch||selected!==next)return;
         recipes=snap.docs.map(d=>({...normalizeRecipe(d.data(),d.id),updatedAt:d.data().updatedAt?.toMillis?.()||0})).sort((a,b)=>b.updatedAt-a.updatedAt);
         if($('friendDetail').open)$('friendDetail').close();render();message('');
-      },e=>{if(token!==epoch||selected!==next)return;recipes=[];if($('friendDetail').open)$('friendDetail').close();render();message('친구 레시피를 불러오지 못했어요. 친구 코드와 Firebase 규칙을 확인해주세요.');report(e);});
+      },e=>{if(token!==epoch||selected!==next)return;recipes=[];if($('friendDetail').open)$('friendDetail').close();render();message('친구 레시피를 불러오지 못했어요. 친구 코드와 데이터베이스 보안 설정을 확인해주세요.');report(e);});
     }catch(e){report(e);}
   }
   function subscribeMine(db,token){
     stopMine?.();
-    stopMine=onSnapshot(collection(db,'recipeShares',code,'recipes'),snap=>{if(token!==epoch)return;shared=new Set(snap.docs.map(d=>d.id));app.refreshDetail();},e=>{if(token===epoch)message('공유 기능의 Firebase 보안 규칙 업데이트가 필요합니다.');});
+    stopMine=onSnapshot(collection(db,'recipeShares',code,'recipes'),snap=>{if(token!==epoch)return;shared=new Set(snap.docs.map(d=>d.id));app.refreshDetail();},e=>{if(token===epoch)message('공유 기능의 데이터베이스 보안 설정 업데이트가 필요합니다.');});
   }
   async function reset(){
     epoch++;const token=epoch;stop?.();stopMine?.();for(const cancel of profileStops.values())cancel();profileStops.clear();code='';friends=[];selected='';recipes=[];shared=new Set();$('displayName').value='';$('myFriendCode').value='';$('friendCodeInput').value='';if($('friendDetail').open)$('friendDetail').close();renderList();render();
@@ -66,7 +66,7 @@ export function createFriends({app,session,report}){
       $('displayName').value=profile.exists()?profile.data().displayName||'':'';
       const setting=await getDoc(doc(s.db,'users',s.user.uid,'settings','sharing'));if(token!==epoch)return;
       if(setting.exists()){code=setting.data().code;$('myFriendCode').value=code;subscribeMine(s.db,token);}
-    }catch(e){if(token===epoch)message('친구 기능을 사용하려면 Firebase 규칙을 업데이트해주세요.');}
+    }catch(e){if(token===epoch)message('친구 기능을 사용하려면 데이터베이스 보안 설정을 업데이트해주세요.');}
   }
   $('friendSearch').addEventListener('input',render);
   const api={

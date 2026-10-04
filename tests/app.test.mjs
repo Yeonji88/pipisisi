@@ -68,3 +68,19 @@ test('상세 화면에 친구 공유·해제 버튼을 표시',()=>{
  const {context,get}=harness();vm.runInContext("showDetail('a')",context);assert.ok(get('detailContent').innerHTML.includes('친구에게 공유'));
  vm.runInContext("window.recipeFriends={isShared:()=>true};showDetail('a')",context);assert.ok(get('detailContent').innerHTML.includes('공유 해제'));
 });
+for(const editing of [false,true])test(`뒤로가기 취소는 저장하지 않은 레시피 ${editing?'수정':'작성'}을 저장하거나 삭제하지 않음`,async()=>{
+  const {context,get,storage}=harness(),before=vm.runInContext('JSON.stringify(recipes)',context),saved=[...storage];
+  vm.runInContext(editing?"openEditor('a');nameEl.value='저장하지 않은 수정';":"openEditor();nameEl.value='저장하지 않은 새 요리';",context);
+  context.document.querySelectorAll=selector=>['editor','detail','accountDialog','chatDialog','friendManager','friendDetail'].map(get).filter(dialog=>selector==='dialog'||dialog.open);
+  context.MutationObserver=class{observe(){}};
+  context.Capacitor={getPlatform:()=> 'android'};context.registerPlugin=()=>({consumeKeyboardBack:async()=>({consumed:false})});
+  context.App={addListener:async()=>({}),minimizeApp:async()=>assert.fail('편집 팝업에서 앱이 내려가면 안 됨')};
+  const navigation=fs.readFileSync('src/back-navigation.js','utf8').replace(/^import .*;\r?\n/gm,'').replace('export function setupBackNavigation','function setupBackNavigation');
+  vm.runInContext(navigation+'\nglobalThis.navigation=setupBackNavigation({app:window.nyamApp});',context);
+  await vm.runInContext('navigation.back()',context);
+  assert.equal(get('editor').open,false);assert.equal(vm.runInContext('JSON.stringify(recipes)',context),before);assert.deepEqual([...storage],saved);
+});
+test('사용자가 작성한 레시피 이름과 메모의 Firebase 표현은 데이터 변경 없이 유지',()=>{
+  const {context,get}=harness();vm.runInContext("recipes[0].name='Firebase 요리';recipes[0].memo='Firebase 메모';render();showDetail('a');",context);
+  assert.match(get('grid').innerHTML,/Firebase 요리/);assert.match(get('detailContent').innerHTML,/Firebase 메모/);
+});

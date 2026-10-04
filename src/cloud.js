@@ -11,6 +11,7 @@ import { setupFriendSelect } from './friend-select.js';
 import { setupChatLayout } from './chat-layout.js';
 import { createBiometric } from './biometric.js';
 import { createMessageAlerts } from './message-alerts.js';
+import { setupBackNavigation } from './back-navigation.js';
 
 const $ = id => document.getElementById(id);
 const app = window.nyamApp;
@@ -31,24 +32,25 @@ window.recipeBiometric=createBiometric({app,logout:()=>window.recipeCloud.logout
   if(!user)throw Error('먼저 로그인해주세요.');
   if(!autoLogin){await setPersistence(auth,browserLocalPersistence);localStorage.setItem('nyamAutoLogin','true');autoLogin=true;refreshControls();}
 }});
-setupFriendSelect();
+const friendPicker=setupFriendSelect();
 setupChatLayout();
+setupBackNavigation({app,closePicker:()=>friendPicker?.closeIfOpen()||false});
 function status(message) { $('syncStatus').textContent = message; if(!user)$('loginStatus').textContent=message; }
 function editable() { return !backingUp && (!user || (ready && navigator.onLine && !busy)); }
 function check() { if (!editable()) throw Error('동기화 연결을 기다려주세요. 연결이 끊긴 동안에는 레시피를 읽을 수 있습니다.'); }
 function errorMessage(e) {
-  if (e.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.' || e.code === 'auth/invalid-api-key') return 'Firebase API 키가 올바르지 않습니다. 프로젝트의 웹 앱 설정값을 다시 확인해주세요.';
-  if (e.code === 'auth/operation-not-allowed') return 'Firebase Authentication에서 이메일/비밀번호 로그인을 사용 설정해주세요.';
-  if (e.code === 'auth/configuration-not-found') return 'Firebase Authentication 설정이 필요합니다. 콘솔에서 시작하기를 누르고 이메일/비밀번호 로그인을 켜주세요.';
-  if (e.code === 'auth/unauthorized-domain') return '현재 주소가 로그인 허용 도메인에 없습니다. Firebase Authentication의 승인된 도메인을 확인해주세요.';
+  if (e.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.' || e.code === 'auth/invalid-api-key') return '데이터베이스 연결 설정이 올바르지 않습니다. 웹 앱 연결 설정을 다시 확인해주세요.';
+  if (e.code === 'auth/operation-not-allowed') return '데이터베이스 로그인 설정에서 이메일/비밀번호 로그인을 사용 설정해주세요.';
+  if (e.code === 'auth/configuration-not-found') return '데이터베이스 로그인 설정이 필요합니다. 관리 화면에서 이메일/비밀번호 로그인을 켜주세요.';
+  if (e.code === 'auth/unauthorized-domain') return '현재 주소가 로그인 허용 도메인에 없습니다. 데이터베이스 로그인 설정의 승인된 도메인을 확인해주세요.';
   if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') return '이메일 또는 비밀번호를 확인해주세요.';
   if (e.code === 'auth/email-already-in-use') return '이미 가입된 이메일입니다. 로그인해주세요.';
   if (e.code === 'auth/weak-password') return '비밀번호를 더 길고 복잡하게 입력해주세요.';
   if (e.code === 'auth/invalid-email') return '이메일 형식을 확인해주세요.';
   if (e.code === 'auth/too-many-requests') return '시도가 많습니다. 잠시 후 다시 시도해주세요.';
-  if (e.code === 'permission-denied') return '동기화 권한을 확인해주세요. Firebase 보안 규칙 설정이 필요합니다.';
+  if (e.code === 'permission-denied') return '동기화 권한을 확인해주세요. 데이터베이스 보안 설정이 필요합니다.';
   if (e.code === 'auth/network-request-failed' || e.code === 'unavailable') return '인터넷 연결을 확인해주세요.';
-  return e.code ? `서버 연결에 실패했습니다. 오류 코드: ${e.code}` : e.message;
+  return (e.code ? `서버 연결에 실패했습니다. 오류 코드: ${e.code}` : String(e.message||'서버 연결에 실패했습니다.')).replace(/firebase/gi,'데이터베이스');
 }
 function refreshControls() {
   $('authLoading').hidden=authChecked;
@@ -164,8 +166,8 @@ window.recipeCloud = {
     finally{busy=false;refreshControls();}
   },
   async backupFirebase() {
-    if (!configured) {app.toast('Firebase 프로젝트 연결이 필요합니다.');return;}
-    if (!user) { $('accountDialog').showModal();app.toast('Firebase에 백업하려면 먼저 로그인해주세요.');return; }
+    if (!configured) {app.toast('데이터베이스 연결이 필요합니다.');return;}
+    if (!user) { $('accountDialog').showModal();app.toast('데이터베이스에 백업하려면 먼저 로그인해주세요.');return; }
     let added = 0, skipped = 0, cleaned = 0, ownsLock = false;
     try {
       check();
@@ -214,7 +216,7 @@ window.recipeCloud = {
     finally {if(ownsLock){backingUp=false;busy=false;refreshControls();status(user?(ready?'동기화 연결됨':'동기화 연결을 기다리는 중'):'기기에 저장 중');}}
   },
   async authenticate(create = false) {
-    if (!configured) { app.toast('Firebase 프로젝트 연결이 필요합니다.');return; }
+    if (!configured) { app.toast('데이터베이스 연결이 필요합니다.');return; }
     if (busy) return;
     busy = true;
     try {
@@ -228,7 +230,7 @@ window.recipeCloud = {
     finally {busy=false;refreshControls();}
   },
   async resetPassword() {
-    if (!configured) {app.toast('Firebase 프로젝트 연결이 필요합니다.');return;}
+    if (!configured) {app.toast('데이터베이스 연결이 필요합니다.');return;}
     try {await sendPasswordResetEmail(auth,$('authEmail').value.trim());app.toast('가입된 이메일이라면 재설정 메일이 전송됩니다.');}catch(e){app.toast(errorMessage(e));}
   },
   async logout() {

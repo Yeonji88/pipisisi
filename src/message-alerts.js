@@ -47,14 +47,14 @@ export function createMessageAlerts({app,session}){
         if(data?.type==='chat'&&/^[a-f0-9]{64}$/.test(data.threadId||'')){pendingTap={threadId:data.threadId};void flushTap();}
       });
       await PushNotifications.addListener('registration',event=>{void saveToken(event.value).catch(()=>app.toast('알림 기기 등록에 실패했어요. 인터넷 연결과 서버 규칙을 확인해주세요.'));});
-      await PushNotifications.addListener('registrationError',()=>app.toast('알림 등록에 실패했어요. 앱의 Firebase Android 설정을 확인해주세요.'));
+      await PushNotifications.addListener('registrationError',()=>app.toast('알림 등록에 실패했어요. 앱의 데이터베이스 Android 연결 설정을 확인해주세요.'));
       await PushNotifications.createChannel({id:'nyam_messages',name:'친구 메시지',description:'친구가 보낸 새 메시지',importance:5,visibility:0,vibration:true});
     })().catch(e=>{initialized=null;throw e;});
     return initialized;
   }
   async function register(request){
     const generation=epoch,owner=uid;
-    if(!configured)throw Error('Android Firebase 설정 파일을 넣고 앱을 다시 빌드해주세요.');
+    if(!configured)throw Error('Android 데이터베이스 설정 파일을 넣고 앱을 다시 빌드해주세요.');
     await init();let permission=await PushNotifications.checkPermissions();
     if(request&&permission.receive!=='granted')permission=await PushNotifications.requestPermissions();
     if(permission.receive!=='granted'){if(request)throw Error('휴대폰 설정에서 냠냠 레시피북 알림을 허용해주세요.');return;}
@@ -93,7 +93,7 @@ export function createMessageAlerts({app,session}){
         if(enabled){epoch++;enabled=false;await detach(owner);localStorage.setItem(key(owner),'false');}
         else{enabled=true;await register(true);localStorage.setItem(key(owner),'true');}
         app.toast(enabled?'앱을 닫아도 새 메시지 알림을 받을 수 있어요.':'메시지 소리 알림을 껐어요.');
-      }catch(e){enabled=localStorage.getItem(key(owner))==='true';app.toast(e.message);}
+      }catch(e){enabled=localStorage.getItem(key(owner))==='true';app.toast(String(e.message||'알림 설정에 실패했어요.').replace(/firebase/gi,'데이터베이스'));}
       finally{busy=false;render();}
     },
     async beforeLogout(){

@@ -4,19 +4,19 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 async function harness(revokeFails=false){
-  const elements=new Map(),replacements=[],logoutSteps=[];let authCallback,snapshotCallback;
+  const elements=new Map(),replacements=[],logoutSteps=[],notices=[];let authCallback,snapshotCallback;
   const get=id=>{if(!elements.has(id))elements.set(id,{value:'',hidden:false,open:false,addEventListener(){},setAttribute(){},close(){this.open=false;}});return elements.get(id);};
-  const app={toast(){},closeDialogs(){},switchAccount(){},replace:next=>replacements.push(next)};
+  const app={toast:message=>notices.push(message),closeDialogs(){},switchAccount(){},replace:next=>replacements.push(next)};
   const context={window:{nyamApp:app,NYAM_FIREBASE_CONFIG:{apiKey:'test',projectId:'test',appId:'test'},addEventListener(){}},
     document:{getElementById:get},localStorage:{getItem(){return null;}},navigator:{onLine:true},
-    createFriends:()=>({reset(){},page(){}}),createChat:()=>({reset(){}}),setupFriendSelect(){},setupChatLayout(){},
+    createFriends:()=>({reset(){},page(){}}),createChat:()=>({reset(){}}),setupFriendSelect(){},setupChatLayout(){},setupBackNavigation(){},
     createBiometric:()=>({refresh(){},loggedOut:async()=>{logoutSteps.push('biometric');},isEnabled:async()=>false}),createMessageAlerts:()=>({reset(){},beforeLogout:async()=>{logoutSteps.push('tokens');if(revokeFails)throw Error('offline');},clear:async()=>{}}),
     initializeApp:()=>({}),getAuth:()=>({}),getFirestore:()=>({}),setPersistence:async()=>{},browserLocalPersistence:{},browserSessionPersistence:{},
     signOut:async()=>{logoutSteps.push('auth');authCallback(null);},onAuthStateChanged:(auth,callback)=>{authCallback=callback;},collection(){},onSnapshot:(ref,options,callback)=>{snapshotCallback=callback;return ()=>{};}};
   vm.createContext(context);
   const source=readFileSync(new URL('../src/cloud.js',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
   vm.runInContext(source,context);await Promise.resolve();
-  return {get,replacements,logoutSteps,logout:()=>context.window.recipeCloud.logout(),authenticate:user=>authCallback(user),snapshot:snap=>snapshotCallback(snap)};
+  return {get,replacements,logoutSteps,notices,report:error=>context.window.recipeCloud.report(error),logout:()=>context.window.recipeCloud.logout(),authenticate:user=>authCallback(user),snapshot:snap=>snapshotCallback(snap)};
 }
 test('자동 로그인 확인 전에는 로그인 폼을 숨기고 확인 후 메인으로 바로 이동',async()=>{
   const h=await harness();assert.equal(h.get('authLoading').hidden,false);assert.equal(h.get('loginPage').hidden,true);assert.equal(h.get('recipeApp').hidden,true);
@@ -37,4 +37,13 @@ test('시작 시 빈 Firebase 메모리 캐시는 기기의 레시피를 덮어�
   const h=await harness();h.authenticate({uid:'me'});
   h.snapshot({metadata:{fromCache:true},docs:[]});assert.equal(h.replacements.length,0);
   h.snapshot({metadata:{fromCache:false},docs:[]});assert.equal(h.replacements.length,1);
+});
+test('사용자 오류 안내는 데이터베이스 표현으로 통일하고 SDK 오류 객체는 그대로 유지',async()=>{
+  const h=await harness();
+  for(const code of ['auth/invalid-api-key','auth/operation-not-allowed','auth/configuration-not-found','auth/unauthorized-domain','permission-denied']){
+    const error={code,message:'Firebase: technical SDK error'};h.report(error);
+    assert.match(h.notices.at(-1),/데이터베이스/);assert.doesNotMatch(h.notices.at(-1),/firebase/i);assert.equal(error.message,'Firebase: technical SDK error');assert.equal(error.code,code);
+  }
+  h.report({message:'Firebase: unexpected error'});assert.doesNotMatch(h.notices.at(-1),/firebase/i);
+  h.report({code:'Firebase/unknown'});assert.doesNotMatch(h.notices.at(-1),/firebase/i);
 });

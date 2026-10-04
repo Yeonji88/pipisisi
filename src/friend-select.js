@@ -22,7 +22,7 @@ export function setupFriendSelect(){
   }
   function open(){refresh();position();menu.hidden=false;if(supportsPopover){if(!menu.matches(':popover-open'))menu.showPopover();}else $('chatDialog').classList.add('chatMenuFallback');button.setAttribute('aria-expanded','true');}
   button.addEventListener('click',()=>{if(menu.hidden)open();else close();});
-  button.addEventListener('keydown',event=>{if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();open();const items=menu.querySelectorAll('button');(event.key==='ArrowUp'?items[items.length-1]:items[0])?.focus();}if(event.key==='Escape')close();});
+  button.addEventListener('keydown',event=>{if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();open();const items=menu.querySelectorAll('button');(event.key==='ArrowUp'?items[items.length-1]:items[0])?.focus();}if(event.key==='Escape'&&!menu.hidden){event.preventDefault();event.stopPropagation();close();}});
   menu.addEventListener('keydown',event=>{
     const items=Array.from(menu.querySelectorAll('button')),index=items.indexOf(document.activeElement);
     if(event.key==='Escape'){event.preventDefault();close();button.focus();return;}
@@ -35,4 +35,5 @@ export function setupFriendSelect(){
   window.addEventListener('resize',()=>{if(!menu.hidden)position();});
   document.addEventListener('scroll',event=>{if(!menu.hidden&&!menu.contains(event.target))position();},true);
   refresh();
+  return {closeIfOpen(){if(menu.hidden)return false;close();return true;}};
 }

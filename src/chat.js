@@ -76,7 +76,7 @@ export function createChat({app,session,report,friends,onIncoming=()=>{}}){
     stopMessages=onSnapshot(q,snapshot=>{
       if(token!==epoch||room!==active)return;
       messages=snapshot.docs.map(d=>({...d.data(),id:d.id,sentAt:d.data().sentAt.toMillis(),expiresAt:d.data().expiresAt.toMillis()}));markRead(room,messages);badge();render();status('메시지는 전송 후 24시간 동안 보관됩니다.');
-    },e=>{if(token!==epoch||room!==active)return;messages=[];render();status('메시지를 불러오지 못했어요. Firebase 규칙과 자동 삭제 설정을 확인해주세요.');report(e);});
+    },e=>{if(token!==epoch||room!==active)return;messages=[];render();status('메시지를 불러오지 못했어요. 데이터베이스 보안 설정과 자동 삭제 설정을 확인해주세요.');report(e);});
   }
   function choose(room){
     try{
@@ -116,7 +116,7 @@ export function createChat({app,session,report,friends,onIncoming=()=>{}}){
       monitorTimer=setInterval(()=>{if(token!==epoch)return;if(navigator.onLine)rooms.forEach(r=>monitor(r,token));badge();},30000);
       stopRooms=onSnapshot(query(collection(s.db,'chatThreads'),where('members','array-contains',s.user.uid)),snapshot=>{
         if(token!==epoch)return;rooms=snapshot.docs.map(d=>({...d.data(),id:d.id}));for(const [id,state]of monitors){if(!rooms.some(r=>r.id===id)){state.stop?.();monitors.delete(id);}}rooms.forEach(r=>monitor(r,token));renderRooms(token);badge();
-      },()=>{renderRooms(token);status('메시지 기능의 Firebase 규칙 업데이트가 필요합니다.');});
+      },()=>{renderRooms(token);status('메시지 기능의 데이터베이스 보안 설정 업데이트가 필요합니다.');});
     },
     async open(peerCode){
       const token=epoch;

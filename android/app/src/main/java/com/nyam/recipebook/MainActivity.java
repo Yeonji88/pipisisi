@@ -37,6 +37,7 @@ public class MainActivity extends BridgeActivity {
     @Override public void onCreate(Bundle state) {
         registerPlugin(BiometricPlugin.class);
         registerPlugin(PushTokenPlugin.class);
+        registerPlugin(NavigationPlugin.class);
         super.onCreate(state);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("nyam_messages", "친구 메시지", NotificationManager.IMPORTANCE_HIGH);
