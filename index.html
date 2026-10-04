@@ -116,7 +116,7 @@ dialog{overflow:hidden}.modal{padding:0;display:flex;flex-direction:column;max-h
 <button id="autoLoginButton" class="chip" aria-pressed="true" onclick="recipeCloud.toggleAutoLogin()">자동 로그인: 켜짐</button>
 <p class="meta">켜두면 다음에 앱을 열 때 로그인 상태를 유지해요.</p>
 
-<div class="section"><button id="biometricButton" class="chip" hidden onclick="recipeBiometric.toggle()">지문 잠금 켜기</button><p class="meta">휴대폰에 등록된 생체인증으로 앱을 열어요.</p><button id="messageAlertButton" class="chip" hidden onclick="messageAlerts.toggle()">메시지 소리 알림 켜기</button><p class="meta">앱을 켜둔 동안 새 메시지 알림을 받을 수 있어요.</p></div><button id="logoutButton" class="chip" onclick="recipeCloud.logout()" hidden>로그아웃</button>
+<div class="section"><button id="biometricButton" class="chip" hidden onclick="recipeBiometric.toggle()">지문 잠금 켜기</button><p class="meta">휴대폰에 등록된 생체인증으로 앱을 열어요.</p><button id="messageAlertButton" class="chip" hidden onclick="messageAlerts.toggle()">메시지 소리 알림 켜기</button><p class="meta">알림을 켜면 앱을 닫아도 새 메시지 알림을 받을 수 있어요.</p></div><button id="logoutButton" class="chip" onclick="recipeCloud.logout()" hidden>로그아웃</button>
 <button id="uploadLocalButton" class="field cancel" onclick="recipeCloud.backupFirebase()" hidden>기기 데이터 백업</button>
 <div class="section"><h3>📦 레시피 백업</h3><p class="meta">기존 브라우저에서 백업한 뒤 앱에서 가져오세요. 사진도 포함됩니다.</p>
 <button class="field cancel" onclick="recipeCloud.exportBackup()">백업 파일 내보내기</button>

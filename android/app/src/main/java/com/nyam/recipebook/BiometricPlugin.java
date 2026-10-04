@@ -11,7 +11,7 @@ public class BiometricPlugin extends Plugin {
     @PluginMethod public void status(PluginCall call) {
         MainActivity activity = (MainActivity)getActivity();
         JSObject result = new JSObject();
-        result.put("available",activity.biometricAvailable()); result.put("enabled",activity.biometricEnabled()); call.resolve(result);
+        result.put("available",activity.biometricAvailable()); result.put("enabled",activity.biometricEnabled()); result.put("locked",activity.biometricLocked()); call.resolve(result);
     }
     @PluginMethod public void toggle(PluginCall call) {
         MainActivity activity = (MainActivity)getActivity();

@@ -1,3 +1,5 @@
 {
-  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" }
+  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" },
+  "functions": [{ "source": "functions", "codebase": "nyam-notifications", "runtime": "nodejs22", "ignore": ["node_modules", ".git", "*-debug.log", "test"] }],
+  "emulators": { "firestore": { "port": 8088 }, "singleProjectMode": true }
 }

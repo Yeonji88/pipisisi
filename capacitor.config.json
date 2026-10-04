@@ -2,5 +2,6 @@
   "appId": "com.nyam.recipebook",
   "appName": "냠냠 레시피북 🍳",
   "webDir": "www",
-  "android": { "backgroundColor": "#fff8ef" }
+  "android": { "backgroundColor": "#fff8ef" },
+  "plugins": { "PushNotifications": { "presentationOptions": ["alert", "sound"] } }
 }

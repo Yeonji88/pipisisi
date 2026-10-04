@@ -6,6 +6,10 @@ android/.gradle/
 android/.kotlin/
 android/.idea/
 android/local.properties
+android/app/google-services.json
+functions/.env*
+firebase-debug.log
+firestore-debug.log
 android/**/build/
 *.jks
 *.keystore

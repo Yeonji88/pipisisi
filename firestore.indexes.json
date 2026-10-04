@@ -1,4 +1,6 @@
 { "indexes": [], "fieldOverrides": [
+  { "collectionGroup": "pushDeliveries", "fieldPath": "expiresAt", "ttl": true, "indexes": [] },
+  { "collectionGroup": "pushReceipts", "fieldPath": "expiresAt", "ttl": true, "indexes": [] },
   { "collectionGroup": "recipes", "fieldPath": "photo", "indexes": [] },
   { "collectionGroup": "recipes", "fieldPath": "ingredients", "indexes": [] },
   { "collectionGroup": "recipes", "fieldPath": "steps", "indexes": [] },

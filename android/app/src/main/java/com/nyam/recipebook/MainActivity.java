@@ -2,6 +2,12 @@ package com.nyam.recipebook;
 
 import com.getcapacitor.BridgeActivity;
 import android.os.Bundle;
+import android.os.Build;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Notification;
+import android.media.AudioAttributes;
+import android.provider.Settings;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
@@ -22,6 +28,7 @@ public class MainActivity extends BridgeActivity {
     private boolean authenticating = false;
     interface AuthResult { void complete(boolean success, String message); }
     boolean biometricEnabled() { return getSharedPreferences("nyam-lock", MODE_PRIVATE).getBoolean("enabled", false); }
+    boolean biometricLocked() { return biometricEnabled() && !unlockedForProcess; }
     boolean biometricAvailable() { return BiometricManager.from(this).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS; }
     void setBiometricEnabled(boolean enabled) {
         getSharedPreferences("nyam-lock", MODE_PRIVATE).edit().putBoolean("enabled", enabled).apply();
@@ -29,7 +36,16 @@ public class MainActivity extends BridgeActivity {
     }
     @Override public void onCreate(Bundle state) {
         registerPlugin(BiometricPlugin.class);
+        registerPlugin(PushTokenPlugin.class);
         super.onCreate(state);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("nyam_messages", "친구 메시지", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("친구가 보낸 새 메시지");
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            channel.enableVibration(true);
+            channel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build());
+            getSystemService(NotificationManager.class).createNotificationChannel(channel);
+        }
         if (biometricEnabled() && !unlockedForProcess) showLock();
     }
     @Override public void onResume() {
@@ -39,6 +55,7 @@ public class MainActivity extends BridgeActivity {
     private void unlock() {
         unlockedForProcess = true;
         if (lockView != null) { ((FrameLayout)findViewById(android.R.id.content)).removeView(lockView); lockView = null; }
+        if (bridge != null) bridge.triggerWindowJSEvent("nyamBiometricUnlocked");
     }
     private void showLock() {
         if (lockView != null) return;

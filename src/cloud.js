@@ -234,6 +234,7 @@ window.recipeCloud = {
   async logout() {
     if(busy){app.toast('저장이 끝난 뒤 로그아웃해주세요.');return;}
     try{
+      await window.messageAlerts.beforeLogout();
       await signOut(auth);
       await window.recipeBiometric.loggedOut();await window.messageAlerts.clear();
       app.closeDialogs();

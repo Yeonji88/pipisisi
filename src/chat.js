@@ -93,6 +93,19 @@ export function createChat({app,session,report,friends,onIncoming=()=>{}}){
   $('chatForm').addEventListener('submit',event=>{event.preventDefault();api.send();});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&active&&$('chatDialog').open){messages=visibleMessages(messages);markRead(active,messages);badge();render();if(navigator.onLine)listenMessages(active);}});
   const api={
+    async openThread(id){
+      const token=epoch,request=++selection;
+      try{
+        const {db,user}=requireUser();
+        if(!/^[a-f0-9]{64}$/.test(id||''))throw Error('대화 정보를 확인해주세요.');
+        const snapshot=await getDoc(doc(db,'chatThreads',id));
+        if(token!==epoch||request!==selection||session().user?.uid!==user.uid)return;
+        const room=snapshot.exists()?snapshot.data():null;
+        if(!room||!Array.isArray(room.members)||room.members.length!==2||new Set(room.members).size!==2||!room.members.includes(user.uid))throw Error('현재 계정으로 볼 수 없는 대화입니다.');
+        if(!rooms.some(r=>r.id===id))rooms.push({...room,id});
+        if(!$('chatDialog').open)$('chatDialog').showModal();app.resetScroll($('chatDialog'));choose(id);
+      }catch(e){if(token===epoch&&request===selection){report(e);await api.open();}}
+    },
     unreadFor(code){const uid=session().user?.uid;return rooms.filter(r=>(r.initiatorUid===uid?r.targetCode:r.initiatorCode)===code).reduce((n,r)=>n+count(r.id),0);},
     async openUnread(){const room=lastUnreadRoom;await api.open();if(room)choose(room);$('messageNotice').hidden=true;},
     refreshFriends(){renderRooms(epoch);},

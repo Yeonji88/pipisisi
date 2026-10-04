@@ -1,6 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /users/{uid}/pushTokens/{installationId} {
+      function owner() { return request.auth != null && request.auth.uid == uid; }
+      allow read, delete: if owner();
+      allow create, update: if owner()
+        && installationId.matches('^[a-f0-9]{32}$')
+        && request.resource.data.keys().hasOnly(['token','platform','updatedAt'])
+        && request.resource.data.token is string && request.resource.data.token.size() > 0 && request.resource.data.token.size() <= 4096
+        && request.resource.data.platform == 'android'
+        && request.resource.data.updatedAt == request.time;
+    }
+    match /pushDeliveries/{id} { allow read, write: if false; }
+    match /pushReceipts/{id} { allow read, write: if false; }
     match /chatThreads/{threadId} {
       function member() { return request.auth != null && request.auth.uid in resource.data.members; }
       allow get: if request.auth != null && (!exists(/databases/$(database)/documents/chatThreads/$(threadId)) || member());
